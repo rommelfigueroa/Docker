@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Flask MySQL Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      padding: 5px;
+      font-size: 16px;
+      width: 200px;
+    }
+
+    button {
+      padding: 5px 10px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    button.remove-button {
+      padding: 3px 6px;
+      background-color: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <h1>Flask MySQL Example</h1>
+
+  <h2>Insert Data</h2>
+  <form id="insertForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+    <button type="submit">Insert</button>
+  </form>
+
+  <h2>Database Contents</h2>
+  <ul id="dataList"></ul>
+
+  <script>
+    // Function to handle the form submission
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+      const name = document.getElementById('name').value;
+      const response = await fetch('/insert_data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name })
+      });
+      if (response.ok) {
+        alert('Data inserted successfully!');
+        document.getElementById('name').value = '';
+        fetchData();
+      } else {
+        alert('Error inserting data');
+      }
+    };
+
+    // Function to handle the item deletion
+    const handleDelete = async (id) => {
+      const response = await fetch(`/delete_data/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        alert('Data deleted successfully!');
+        fetchData();
+      } else {
+        alert('Error deleting data');
+      }
+    };
+
+    // Function to fetch and display the data
+    const fetchData = async () => {
+      const response = await fetch('/get_data');
+      const data = await response.json();
+      const dataList = document.getElementById('dataList');
+      dataList.innerHTML = '';
+      data.forEach((item) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = item.name;
+
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.className = 'remove-button';
+        removeButton.addEventListener('click', () => {
+          handleDelete(item.id);
+        });
+
+        listItem.appendChild(removeButton);
+        dataList.appendChild(listItem);
+      });
+    };
+
+    // Attach event listener to the form
+    const insertForm = document.getElementById('insertForm');
+    insertForm.addEventListener('submit', handleSubmit);
+
+    // Fetch data on page load
+    window.onload = () => {
+      fetchData();
+    };
+  </script>
+</body>
+</html>

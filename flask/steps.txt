@@ -1,0 +1,16 @@
+If you have an error that makes your container instantly exit
+it is an issue with the Dockerfile.
+
+In order to fix this you must rebuild the image
+
+# Remove old containers
+docker container prune 
+
+# Remove old image
+docker rmi IMAGENAME
+
+# build image
+docker build -t TAGNAME .
+
+# run the image
+docker run -d -p 5000:5000 CONTAINERID
